@@ -1,0 +1,59 @@
+{
+  "name": "angular-hot-livereload-plugin",
+  "version": "1.0.0",
+  "description": "Hot reloading for Angular 1.x controllers, services and templates, using livereload.js",
+  "scripts": {
+    "test": "node_modules/.bin/nightwatch",
+    "dist": "node_modules/.bin/browserify src/angular-hot-livereload.js -o dist/angular-hot-livereload.js",
+    "watch": "node_modules/.bin/watchify src/angular-hot-livereload.js -o dist/angular-hot-livereload.js"
+  },
+  "author": "Tjisse van der Wal",
+  "license": "ISC",
+  "dependencies": {
+    "livereload-js": "^2.2.2"
+  },
+  "devDependencies": {
+    "angular": "^1.6.1",
+    "babel-plugin-transform-class-properties": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babelify": "^7.3.0",
+    "browserify-shim": "^3.8.13",
+    "connect": "^3.5.0",
+    "connect-static-transform": "^0.8.0",
+    "jquery": "^3.1.1",
+    "livereload": "^0.6.0",
+    "lodash": "^4.17.4",
+    "nightwatch": "^0.9.12",
+    "node-livereload": "^0.6.0",
+    "phantomjs": "^2.1.7",
+    "selenium-server-standalone": "^2.53.1",
+    "serve-static": "^1.11.2",
+    "watchify": "^3.9.0"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ],
+          "plugins": [
+            "transform-class-properties"
+          ]
+        }
+      ],
+      [
+        "browserify-shim",
+        {
+          "global": true
+        }
+      ]
+    ]
+  },
+  "browserify-shim": {
+    "jquery": "global:$",
+    "angular": "global:angular",
+    "livereload-js": "global:LiveReload"
+  }
+}
