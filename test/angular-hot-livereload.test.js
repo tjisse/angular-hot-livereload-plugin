@@ -1,3 +1,5 @@
+'use strict';
+
 const connect = require('connect');
 const ss = require('serve-static');
 const st = require('connect-static-transform');
@@ -8,7 +10,7 @@ const libDir = __dirname + '/../node_modules';
 const distDir = __dirname + '/../dist';
 const assetsDir = __dirname + '/assets';
 const htmlDir = assetsDir + '/html';
-const partialsDir = assetsDir + '/partials';
+const templatesDir = assetsDir + '/templates';
 const jsDir = assetsDir + '/js';
 
 let serverHandle;
@@ -87,8 +89,8 @@ module.exports = {
                 }
             }
         }));
-        server.use('/partials', st({
-            root: partialsDir,
+        server.use('/templates', st({
+            root: templatesDir,
             match: /.+\.html/,
             transform: (path, text, send) => {
                 send(text.replace('[nrReloads]', ++nrReloads.template));

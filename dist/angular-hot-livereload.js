@@ -971,6 +971,8 @@ var _kebabCase2 = _interopRequireDefault(_kebabCase);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var NgHotReloadPlugin = function () {
@@ -982,6 +984,12 @@ var NgHotReloadPlugin = function () {
         console.info('Angular hot livereload plugin loaded');
     }
 
+    /**
+     * Fetches a script file that contains a controller, then reloads this controller in all elements that use it
+     * @param url The url of the script file to be fetched containing a controller
+     */
+
+
     _createClass(NgHotReloadPlugin, [{
         key: 'reloadNgController',
         value: function reloadNgController(url) {
@@ -989,25 +997,47 @@ var NgHotReloadPlugin = function () {
             var fileName = fullFileName.substring(-1, fullFileName.indexOf('.'));
             var controllerName = NgHotReloadPlugin.capitalize((0, _camelCase2.default)(fileName)) + 'Controller';
             var directiveName = (0, _camelCase2.default)(fileName);
+            var tagName = (0, _kebabCase2.default)(fileName);
 
             var doc = _angular2.default.element(window.document);
             var injector = doc.injector();
             if (injector) {
-                (function () {
-                    var directive = injector.get(directiveName + 'Directive')[0];
-                    if (directive) {
-                        _jquery2.default.getScript(url, function () {
-                            var old = directive.controller;
-                            var updated = new window[controllerName]();
-                            Object.assign(old.prototype, updated.__proto__);
-                            // trigger rootscope update
-                            doc.find('html').scope().$apply();
-                            console.info('Hot swapped controller ' + controllerName);
+                // check if directive is available
+                var directive = injector.get(directiveName + 'Directive')[0];
+                if (directive) {
+                    // fetch and load changed script
+                    _jquery2.default.getScript(url, function () {
+                        // get updated controller definition
+                        var updated = window[controllerName];
+                        // find all elements with this controller
+                        var elems = Array.prototype.slice.call(doc.find(tagName));
+                        elems.forEach(function (elt) {
+                            var element = _angular2.default.element(elt);
+                            // get old controller instance
+                            var old = element.controller(directiveName);
+                            // get objects to inject
+                            var injects_names = injector.annotate(updated);
+                            var injects = injects_names.map(function (el) {
+                                return injector.get(el);
+                            });
+                            // create instance from updated controller definition
+                            var updated_inst = new (Function.prototype.bind.apply(window[controllerName], [null].concat(_toConsumableArray(injects))))();
+                            // assign new properties and methods to old controller
+                            Object.assign(old, updated_inst);
                         });
-                    }
-                })();
+                        // rootscope update
+                        doc.find('html').scope().$apply();
+                        console.info('Hot swapped controllers of <' + tagName + '> components');
+                    });
+                }
             }
         }
+
+        /**
+         * Fetches a script file that contains a service, then reloads it
+         * @param url The url of the script file to be fetched containing a service
+         */
+
     }, {
         key: 'reloadNgService',
         value: function reloadNgService(url) {
@@ -1018,16 +1048,35 @@ var NgHotReloadPlugin = function () {
             var doc = _angular2.default.element(window.document);
             var injector = doc.injector();
             if (injector) {
-                _jquery2.default.getScript(url, function () {
+                (function () {
+                    // get old service instance
                     var old = injector.get(serviceName);
-                    var updated = new window[serviceName]();
-                    Object.assign(old.__proto__, updated.__proto__);
-                    // trigger rootscope update
-                    doc.find('html').scope().$apply();
-                    console.info('Hot swapped service ' + serviceName);
-                });
+                    // fetch and load changed script
+                    _jquery2.default.getScript(url, function () {
+                        // get updated service definition
+                        var updated = window[serviceName];
+                        // get objects to inject
+                        var injects_names = injector.annotate(updated);
+                        var injects = injects_names.map(function (el) {
+                            return injector.get(el);
+                        });
+                        // create instance from updated service definition
+                        var updated_inst = new window[serviceName](injects);
+                        // assign new properties and methods to old service
+                        Object.assign(old, updated_inst);
+                        // rootscope update
+                        doc.find('html').scope().$apply();
+                        console.info('Hot swapped service ' + serviceName);
+                    });
+                })();
             }
         }
+
+        /**
+         * Fetches a script file that contains a template, then reloads this template in all elements that use it
+         * @param url The url of the template file to be fetched
+         */
+
     }, {
         key: 'reloadNgTemplate',
         value: function reloadNgTemplate(url) {
@@ -1038,21 +1087,31 @@ var NgHotReloadPlugin = function () {
             var doc = _angular2.default.element(document);
             var injector = doc.injector();
             if (injector) {
+                // fetch updated template
                 _jquery2.default.get(url, function (resp) {
                     var $compile = injector.get('$compile');
-                    // doc.find has to be cast to an Array
+                    // find all elements with this template
                     var elems = Array.prototype.slice.call(doc.find(tagName));
+                    // for each element, set inner html to updated template
                     elems.forEach(function (elt) {
-                        var angularElement = _angular2.default.element(elt);
-                        var scope = angularElement.isolateScope();
-                        angularElement.html(resp);
-                        $compile(angularElement.contents())(scope);
+                        var element = _angular2.default.element(elt);
+                        var scope = element.isolateScope();
+                        element.html(resp);
+                        $compile(element.contents())(scope);
                     });
+                    // rootscope update
                     doc.find('html').scope().$apply();
                     console.info('Hot swapped templates of <' + tagName + '> components');
                 });
             }
         }
+
+        /**
+         * Main entry point for livereload notifications, matches supported files and handles reloading accordingly
+         * @param path File path to the updated file
+         * @returns {boolean} True if plugin can handle updated file, false if not
+         */
+
     }, {
         key: 'reload',
         value: function reload(path) {
@@ -1081,6 +1140,13 @@ var NgHotReloadPlugin = function () {
                 return true;
             }
         }
+
+        /**
+         * Attempts to select the script in DOM that matches the file in the livereload notification
+         * @param path File path to the updated file
+         * @returns {string|*} URL to the script file that matches the updated file, or `undefined` if no match
+         */
+
     }], [{
         key: 'matchPathInScripts',
         value: function matchPathInScripts(path) {
@@ -1099,6 +1165,13 @@ var NgHotReloadPlugin = function () {
                 splitPath = splitPath.slice(1);
             }
         }
+
+        /**
+         * Attempts to select the template in $templateCache that matches the file in the livereload notification
+         * @param path File path to the updated file
+         * @returns {string|*} URL to the template file that matches the updated file, or `undefined` if no match
+         */
+
     }, {
         key: 'matchPathInTemplateCache',
         value: function matchPathInTemplateCache(path) {
