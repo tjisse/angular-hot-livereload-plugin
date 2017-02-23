@@ -16,51 +16,60 @@ const jsDir = assetsDir + '/js';
 let serverHandle;
 let lrServer;
 let nrReloads = {
-    total: 0,
-    controller: 0,
-    service: 0,
-    template: 0
+    total: 1,
+    controller: 1,
+    service: 1,
+    template: 1
 };
 
 module.exports = {
 
     'Initial state': brsr => {
-        brsr.expect.element('#nrReloadsTotal').text.to.contain(1);
-        brsr.expect.element('#nrReloadsController').text.to.contain(1);
-        brsr.expect.element('#nrReloadsService').text.to.contain(1);
-        brsr.expect.element('#nrReloadsTemplate').text.to.contain(1);
-        brsr.end();
+        brsr.url('http://localhost:3000/index.html')
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .assert.containsText('#nrReloadsController', nrReloads.controller)
+            .assert.containsText('#nrReloadsService', nrReloads.service)
+            .assert.containsText('#nrReloadsTemplate', nrReloads.template)
+            .end();
     },
 
     'Reload controller': brsr => {
-        brsr.expect.element('#nrReloadsController').text.to.contain(nrReloads.controller);
-        lrServer.refresh('/js/test.component.js');
+        brsr.url('http://localhost:3000/index.html')
+            .waitForElementVisible('#nrReloadsController', 5000)
+            .assert.containsText('#nrReloadsController', nrReloads.controller)
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .pause(2000)
+            .assert.containsText('#nrReloadsController', nrReloads.controller + 1)
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .end();
 
-        brsr.expect.element('#nrReloadsController').text.to.contain(nrReloads.controller);
-        brsr.expect.element('#nrReloadsTotal').text.to.contain(1);
-        brsr.end();
+        setTimeout(() => lrServer.refresh('/js/test.component.js'), 4000);
     },
 
     'Reload service': brsr => {
-        brsr.expect.element('#nrReloadsService').text.to.contain(nrReloads.service);
-        lrServer.refresh('/js/test.service.js');
+        brsr.url('http://localhost:3000/index.html')
+            .waitForElementVisible('#nrReloadsService', 5000)
+            .assert.containsText('#nrReloadsService', nrReloads.service)
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .pause(2000)
+            .assert.containsText('#nrReloadsService', nrReloads.service + 1)
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .end();
 
-        brsr.expect.element('#nrReloadsService').text.to.contain(nrReloads.service);
-        brsr.expect.element('#nrReloadsTotal').text.to.contain(1);
-        brsr.end();
+        setTimeout(() => lrServer.refresh('/js/test.service.js'), 4000);
     },
 
     'Reload template': brsr => {
-        brsr.expect.element('#nrReloadsTemplate').text.to.contain(nrReloads.template);
-        lrServer.refresh('/partials/test.template.html');
+        brsr.url('http://localhost:3000/index.html')
+            .waitForElementVisible('#nrReloadsTemplate', 5000)
+            .assert.containsText('#nrReloadsTemplate', nrReloads.template)
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .pause(2000)
+            .assert.containsText('#nrReloadsTemplate', nrReloads.template + 1)
+            .assert.containsText('#nrReloadsTotal', nrReloads.total)
+            .end();
 
-        brsr.expect.element('#nrReloadsService').text.to.contain(nrReloads.template);
-        brsr.expect.element('#nrReloadsTotal').text.to.contain(1);
-        brsr.end();
-    },
-
-    beforeEach: brsr => {
-        brsr.url('http://localhost:3000/index.html');
+        setTimeout(() => lrServer.refresh('/templates/test.template.html'), 4000);
     },
 
     before: () => {
@@ -73,7 +82,8 @@ module.exports = {
             root: htmlDir,
             match: /.+\.html/,
             transform: (path, text, send) => {
-                send(text.replace('[nrReloads]', ++nrReloads.total));
+                console.log("Total reload");
+                send(text.replace('[nrReloads]', nrReloads.total++));
             }
         }));
         server.use('/js', st({
@@ -81,9 +91,11 @@ module.exports = {
             match: /.+\.js/,
             transform: (path, text, send) => {
                 if (path.match(/.+\.component\..+/)) {
-                    send(text.replace('[nrReloads]', ++nrReloads.controller));
+                    console.log("Controller reload");
+                    send(text.replace('[nrReloads]', nrReloads.controller++));
                 } else if (path.match(/.+\.service\..+/)) {
-                    send(text.replace('[nrReloads]', ++nrReloads.service));
+                    console.log("Service reload");
+                    send(text.replace('[nrReloads]', nrReloads.service++));
                 } else {
                     send(text)
                 }
@@ -93,7 +105,8 @@ module.exports = {
             root: templatesDir,
             match: /.+\.html/,
             transform: (path, text, send) => {
-                send(text.replace('[nrReloads]', ++nrReloads.template));
+                console.log("Template reload");
+                send(text.replace('[nrReloads]', nrReloads.template++));
             }
         }));
         serverHandle = server.listen(port);
