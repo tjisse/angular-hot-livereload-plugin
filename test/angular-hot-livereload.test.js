@@ -6,6 +6,8 @@ const st = require('connect-static-transform');
 const livereload = require('livereload');
 
 const port = 3000;
+const waitFactor = 3;
+
 const libDir = __dirname + '/../node_modules';
 const distDir = __dirname + '/../dist';
 const assetsDir = __dirname + '/assets';
@@ -38,12 +40,12 @@ module.exports = {
             .waitForElementVisible('#nrReloadsController', 5000)
             .assert.containsText('#nrReloadsController', nrReloads.controller)
             .assert.containsText('#nrReloadsTotal', nrReloads.total)
-            .pause(2000)
+            .pause(1000 * waitFactor)
             .assert.containsText('#nrReloadsController', nrReloads.controller + 1)
             .assert.containsText('#nrReloadsTotal', nrReloads.total)
             .end();
 
-        setTimeout(() => lrServer.refresh('/js/test.component.js'), 4000);
+        setTimeout(() => lrServer.refresh('/js/test.component.js'), 500 * waitFactor);
     },
 
     'Reload service': brsr => {
@@ -51,12 +53,12 @@ module.exports = {
             .waitForElementVisible('#nrReloadsService', 5000)
             .assert.containsText('#nrReloadsService', nrReloads.service)
             .assert.containsText('#nrReloadsTotal', nrReloads.total)
-            .pause(2000)
+            .pause(1000 * waitFactor)
             .assert.containsText('#nrReloadsService', nrReloads.service + 1)
             .assert.containsText('#nrReloadsTotal', nrReloads.total)
             .end();
 
-        setTimeout(() => lrServer.refresh('/js/test.service.js'), 4000);
+        setTimeout(() => lrServer.refresh('/js/test.service.js'), 500 * waitFactor);
     },
 
     'Reload template': brsr => {
@@ -64,12 +66,12 @@ module.exports = {
             .waitForElementVisible('#nrReloadsTemplate', 5000)
             .assert.containsText('#nrReloadsTemplate', nrReloads.template)
             .assert.containsText('#nrReloadsTotal', nrReloads.total)
-            .pause(2000)
+            .pause(1000 * waitFactor)
             .assert.containsText('#nrReloadsTemplate', nrReloads.template + 1)
             .assert.containsText('#nrReloadsTotal', nrReloads.total)
             .end();
 
-        setTimeout(() => lrServer.refresh('/templates/test.template.html'), 4000);
+        setTimeout(() => lrServer.refresh('/templates/test.template.html'), 500 * waitFactor);
     },
 
     before: () => {

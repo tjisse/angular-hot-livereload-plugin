@@ -1,0 +1,19 @@
+{
+  "name": "angular-hot-livereload-plugin",
+  "description": "Hot reloading for Angular 1.x controllers, services and templates, using livereload.js",
+  "authors": [
+    "Tjisse van der Wal"
+  ],
+  "license": "ISC",
+  "main": [
+    "dist/angular-hot-reload.js"
+  ],
+  "dependencies": {
+    "angular": "^1.5.0",
+    "jquery": ">=1.10.2"
+  },
+  "ignore": [
+    "*",
+    "!dist/*"
+  ]
+}
