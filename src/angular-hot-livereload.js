@@ -206,6 +206,7 @@ module.exports = function() {
     if (livereload && typeof livereload.addPlugin == 'function') {
         livereload.addPlugin(NgHotReloadPlugin);
     } else {
-        console.error('Error adding angular-hot-livereload-plugin, make sure to load livereload-js first');
+        console.info('Setting angular-hot-livereload plugin on window object so it gets loaded with Livereload.js');
+        window.LiveReloadPlugin_NgHotReloadPlugin = NgHotReloadPlugin;
     }
 }();
