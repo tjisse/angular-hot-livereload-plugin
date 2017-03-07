@@ -6,7 +6,7 @@
   ],
   "license": "ISC",
   "main": [
-    "dist/angular-hot-reload.js"
+    "dist/angular-hot-livereload.js"
   ],
   "dependencies": {
     "angular": "^1.5.0",
