@@ -1,6 +1,6 @@
 {
   "name": "angular-hot-livereload-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Hot reloading for Angular 1.x controllers, services and templates, using livereload.js",
   "scripts": {
     "test": "node_modules/.bin/nightwatch",

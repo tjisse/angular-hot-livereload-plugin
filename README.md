@@ -7,7 +7,7 @@ Hot reloading for Angular 1.x controllers, services and templates, using liverel
 This plugin allows reloading parts of your Angular 1.x application while developing, without needing to trigger a full page reload. It was inspired by [angular-hot-reloader](https://github.com/honestica/angular-hot-reloader). I needed something similar, but without the Webpack dependency.
 
 ### Installation
-1. `bower install angular-hot-livereload-plugin`
+1. `bower install angular-hot-livereload-plugin --save-dev`
 2. Load the plugin script next to livereload.js in your development workflow
 
 ### Usage

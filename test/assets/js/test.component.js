@@ -6,7 +6,7 @@ angular.module('angular-hot-livereload-plugin-test')
         }
     );
 
-function TestController(Test) {
+function TestController($scope, Test) {
     this.Test = Test;
     this.nrReloads = '[nrReloads]';
 }

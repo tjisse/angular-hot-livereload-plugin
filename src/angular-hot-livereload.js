@@ -44,7 +44,14 @@ class NgHotReloadPlugin {
                         const old = element.controller(directiveName);
                         // get objects to inject
                         const injects_names = injector.annotate(updated);
-                        const injects = injects_names.map(el => injector.get(el));
+                        const injects = injects_names.map(el => {
+                            // handle $scope
+                            if (el === '$scope') {
+                                return element.scope();
+                            } else {
+                                return injector.get(el);
+                            }
+                        });
                         // create instance from updated controller definition
                         const updated_inst = new window[controllerName](...injects);
                         // assign new properties and methods to old controller
