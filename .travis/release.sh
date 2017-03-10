@@ -25,5 +25,7 @@ git add -f dist/*.js bower.json
 git commit -m "Release $VERSION"
 git tag -a "v$VERSION" -m "Version $VERSION"
 git push -q auth-origin refs/tags/v$VERSION 2>/dev/null
+git checkout -f master
+npm version patch -m "Increment version for next release (%s)"
+git push -q auth-origin master 2>/dev/null
 git remote rm auth-origin
-git checkout -f @{-1}
