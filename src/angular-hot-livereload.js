@@ -54,7 +54,7 @@ class NgHotReloadPlugin {
                         });
                         // create instance from updated controller definition
                         const updated_inst = new window[controllerName](...injects);
-                        // assign new properties and methods to old controller
+                        // assign updated properties and methods to old controller
                         Object.assign(old, updated_inst);
                     });
                     // rootscope update
@@ -88,7 +88,7 @@ class NgHotReloadPlugin {
                 const injects = injects_names.map(el => injector.get(el));
                 // create instance from updated service definition
                 const updated_inst = new window[serviceName](injects);
-                // assign new properties and methods to old service
+                // assign updated properties and methods to old service
                 Object.assign(old, updated_inst);
                 // rootscope update
                 doc.find('html').scope().$apply();
@@ -105,6 +105,7 @@ class NgHotReloadPlugin {
         const fullFileName = url.split('/').pop().substring(-1, url.lastIndexOf('.'));
         const fileName = fullFileName.substring(-1, fullFileName.indexOf('.'));
         const tagName = kebabCase(fileName);
+        const directiveName = camelCase(fileName);
 
         const doc = angular.element(document);
         const injector = doc.injector();
@@ -112,6 +113,9 @@ class NgHotReloadPlugin {
             // fetch updated template
             jquery.get(url, resp => {
                 const $compile = injector.get('$compile');
+                const directive = injector.get(directiveName + 'Directive')[0];
+                // set updated template on directive
+                directive.template = resp;
                 // find all elements with this template
                 const elems = Array.prototype.slice.call(doc.find(tagName));
                 // for each element, set inner html to updated template

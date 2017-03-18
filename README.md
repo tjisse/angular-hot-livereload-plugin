@@ -14,25 +14,26 @@ This plugin allows reloading parts of your Angular 1.x application while develop
 For this plugin to work a few things should be kept in mind:
   - Your application should use the Angular 1.5+ component-based application architecture
   - (File)names used should be predictable:
-    - `[kebab-case-name].component.js` :
+    - `lorem-ipsum.component.js` :
         ```js
-        angular.module('...').component('[camelCaseName]', {
-                controller: [PascalCaseName]Controller,
-                templateUrl: '...'
+        angular.module('...').component('loremIpsum', {
+                controller: LoremIpsumController,
+                templateUrl: '/some/path/lorem-ipsum.template.html'
         });
 
-        function [PascalCaseName]Controller() {
+        function LoremIpsumController() {
             ...
         }
         ```
-    - `[kebab-case-name].service.js` :
-        ```js
-        angular.module('...').service([PascalCaseName].name, [PascalCaseName]);
-
-        function [PascalCaseName]() {
-            ...
-        }
-        ```
-    - `[kebab-case-name].template.js`
+    - `lorem-ipsum.template.html`
     
+    - `lorem-ipsum.service.js` :
+        ```js
+        angular.module('...').service(LoremIpsum.name, LoremIpsum);
+
+        function LoremIpsum() {
+            ...
+        }
+        ```
+        
   - Some kind of LiveReload server is needed, for example [grunt-contrib-watch](https://github.com/gruntjs/grunt-contrib-watch)
