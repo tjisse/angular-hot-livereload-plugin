@@ -39,15 +39,15 @@ class NgHotReloadPlugin {
                     // find all elements with this controller
                     const elems = Array.prototype.slice.call(doc.find(tagName));
                     elems.forEach(elt => {
-                        const element = angular.element(elt);
+                        const ngElt = angular.element(elt);
                         // get old controller instance
-                        const old = element.controller(directiveName);
+                        const old = ngElt.controller(directiveName);
                         // get objects to inject
                         const injects_names = injector.annotate(updated);
                         const injects = injects_names.map(el => {
                             // handle $scope
                             if (el === '$scope') {
-                                return element.scope();
+                                return ngElt.scope();
                             } else {
                                 return injector.get(el);
                             }
@@ -120,10 +120,11 @@ class NgHotReloadPlugin {
                 const elems = Array.prototype.slice.call(doc.find(tagName));
                 // for each element, set inner html to updated template
                 elems.forEach(elt => {
-                    const element = angular.element(elt);
-                    const scope = element.isolateScope();
-                    element.html(resp);
-                    $compile(element.contents())(scope);
+                    const ngElt = angular.element(elt);
+                    const scope = ngElt.isolateScope();
+                    ngElt.html(resp);
+                    $compile(ngElt.contents())(scope);
+                    NgHotReloadPlugin.recompileParentNgIfs($compile, elt);
                 });
                 // rootscope update
                 doc.find('html').scope().$apply();
@@ -161,6 +162,23 @@ class NgHotReloadPlugin {
             }
             this.reloadNgTemplate(url);
             return true;
+        }
+    }
+
+    /**
+     * Walks up the DOM and recompiles any ng-if directives so the updated template is always persisted
+     * @param $compile Angular $compile service
+     * @param element The element to start at
+     */
+    static recompileParentNgIfs($compile, element) {
+        let elt = element;
+        while (elt.localName !== 'html') {
+            if (elt.hasAttribute('ng-if') || elt.hasAttribute('data-ng-if')) {
+                const ngElt = angular.element(elt);
+                const scope = ngElt.scope();
+                $compile(ngElt.contents())(scope);
+            }
+            elt = elt.parentNode;
         }
     }
 

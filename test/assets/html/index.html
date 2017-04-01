@@ -19,6 +19,9 @@
 <body>
     <p id="nrReloadsTotal">Total page reloads: [nrReloads]</p>
     <h3>Test component:</h3>
-    <test></test>
+    <div ng-if="!isHidden">
+        <test></test>
+    </div>
+    <button ng-click="isHidden = !isHidden">Show/Hide</button>
 </body>
 </html>
